@@ -1,0 +1,65 @@
+#!/bin/bash -e
+
+exec &> "$HOME/update_go.log"
+
+# Get the Native Client SDK
+if [[ ! -d "$HOME/.nacl_sdk" ]]
+then
+	cd "$HOME"
+	rm -f .nacl_sdk.zip
+	wget -O .nacl_sdk.zip "http://storage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/nacl_sdk.zip"
+	unzip .nacl_sdk.zip
+	mv "nacl_sdk" ".nacl_sdk"
+	rm -f .nacl_sdk.zip
+fi
+
+cd "$HOME/.nacl_sdk"
+
+./naclsdk update
+
+nacl_version=$(./naclsdk list | grep -o 'pepper_\([0-9]\+\) (stable)' | cut -f1 -d' ')
+
+# Get Go's source code
+
+if [[ ! -d "$HOME/.golang" ]]
+then
+	git clone "https://go.googlesource.com/go" "$HOME/.golang"
+fi
+
+cd "$HOME/.golang"
+
+git pull
+
+# Bootstrap
+
+rm -rf "$HOME/.golang-bootstrap"
+
+for v in 1.4 1.5
+do
+	git clone --depth 1 -b "release-branch.go$v" --reference "$HOME/.golang" "https://go.googlesource.com/go" "$HOME/.golang-bootstrap/go-$v"
+	(cd "$HOME/.golang-bootstrap/go-$v/src" && ./all.bash)
+	export GOROOT_BOOTSTRAP="$HOME/.golang-bootstrap/go-$v"
+done
+
+# Symlinks as defined in misc/nacl/README
+
+mkdir -p bin
+
+ln -nfs "$HOME/.nacl_sdk/$nacl_version/tools/sel_ldr_x86_32" "$HOME/.golang/bin/sel_ldr_x86_32"
+ln -nfs "$HOME/.nacl_sdk/$nacl_version/tools/sel_ldr_x86_64" "$HOME/.golang/bin/sel_ldr_x86_64"
+ln -nfs "$HOME/.nacl_sdk/$nacl_version/tools/sel_ldr_arm" "$HOME/.golang/bin/sel_ldr_arm"
+
+ln -nfs "$HOME/.nacl_sdk/$nacl_version/tools/nacl_helper_bootstrap_x86_32" "$HOME/.golang/bin/nacl_helper_bootstrap_x86_32"
+ln -nfs "$HOME/.nacl_sdk/$nacl_version/tools/nacl_helper_bootstrap_x86_64" "$HOME/.golang/bin/nacl_helper_bootstrap_x86_64"
+ln -nfs "$HOME/.nacl_sdk/$nacl_version/tools/nacl_helper_bootstrap_arm" "$HOME/.golang/bin/nacl_helper_bootstrap_arm"
+
+ln -nfs "$HOME/.golang/misc/nacl/go_nacl_amd64p32_exec" "$HOME/.golang/bin/go_nacl_amd64p32_exec"
+ln -nfs "$HOME/.golang/misc/nacl/go_nacl_386_exec" "$HOME/.golang/bin/go_nacl_386_exec"
+ln -nfs "$HOME/.golang/misc/nacl/go_nacl_arm_exec" "$HOME/.golang/bin/go_nacl_arm_exec"
+
+# And now we compile!
+
+cd src
+
+./all.bash
+../bin/go run ../misc/nacl/mkzip.go -p syscall -r .. ../misc/nacl/testzip.proto syscall/fstest_nacl.go
