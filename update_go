@@ -30,6 +30,8 @@ cd "$HOME/.golang"
 
 git pull
 
+git log --after=$(date --date="yesterday" +"%Y-%m-%dT04:00:00")
+
 # Bootstrap
 
 rm -rf "$HOME/.golang-bootstrap"
