@@ -17,4 +17,4 @@ case "`~/.golang/bin/go env GOOS`" in
 	;;
 esac
 
-~/.golang/bin/go "$@" < /dev/stdin
+exec ~/.golang/bin/go "$@" < /dev/stdin

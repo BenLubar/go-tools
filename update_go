@@ -34,12 +34,12 @@ git log --after=$(date --date="yesterday" +"%Y-%m-%dT04:00:00")
 
 # Bootstrap
 
-rm -rf "$HOME/.golang-bootstrap"
+rm -rf "$HOME/.golang-bootstrap/"go-*
 
 for v in 1.4 1.5
 do
 	git clone --depth 1 -b "release-branch.go$v" --reference "$HOME/.golang" "https://go.googlesource.com/go" "$HOME/.golang-bootstrap/go-$v"
-	(cd "$HOME/.golang-bootstrap/go-$v/src" && ./all.bash)
+	(cd "$HOME/.golang-bootstrap/go-$v/src" && ./make.bash)
 	export GOROOT_BOOTSTRAP="$HOME/.golang-bootstrap/go-$v"
 done
 
@@ -65,3 +65,35 @@ cd src
 
 ./all.bash
 ../bin/go run ../misc/nacl/mkzip.go -p syscall -r .. ../misc/nacl/testzip.proto syscall/fstest_nacl.go
+
+# build a shared library for Go
+../bin/go install -buildmode=shared -a std
+
+# Install some utilities
+source "$HOME/.profile"
+
+old_GOPATH="$GOPATH"
+old_GOBIN="$GOBIN"
+export GOBIN="${old_GOBIN:-`cut -d: -f1 <<< "$old_GOPATH"`/bin}"
+export GOPATH="$HOME/.golang-bootstrap/path"
+
+../bin/go get -u -v -linkshared \
+	github.com/alecthomas/gometalinter \
+	github.com/derekparker/delve/cmd/dlv \
+	github.com/garyburd/go-explorer/src/getool \
+	github.com/golang/lint/golint \
+	github.com/jstemmer/gotags \
+	github.com/kisielk/errcheck \
+	github.com/nsf/gocode \
+	github.com/rogpeppe/godef \
+	golang.org/x/tools/cmd/goimports \
+	golang.org/x/tools/cmd/gorename \
+	golang.org/x/tools/cmd/oracle \
+	golang.org/x/tools/cmd/ssadump
+
+export GOPATH="$old_GOPATH"
+export GOBIN="$old_GOBIN"
+
+[[ -d "$HOME/.vim/bundle/vim-go" ]] && (cd "$HOME/.vim/bundle/vim-go" && git pull)
+[[ -d "$HOME/.vim/bundle/tagbar" ]] && (cd "$HOME/.vim/bundle/tagbar" && git pull)
+[[ -d "$HOME/.vim/bundle/go-explorer" ]] && (cd "$HOME/.vim/bundle/go-explorer" && git pull)
