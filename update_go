@@ -66,8 +66,8 @@ cd src
 ./all.bash
 ../bin/go run ../misc/nacl/mkzip.go -p syscall -r .. ../misc/nacl/testzip.proto syscall/fstest_nacl.go
 
-# build a shared library for Go
-../bin/go install -buildmode=shared -a std
+# build the standard library for Go
+../bin/go install -a std
 
 # Install some utilities
 source "$HOME/.profile"
@@ -77,7 +77,7 @@ old_GOBIN="$GOBIN"
 export GOBIN="${old_GOBIN:-`cut -d: -f1 <<< "$old_GOPATH"`/bin}"
 export GOPATH="$HOME/.golang-bootstrap/path"
 
-../bin/go get -u -v -linkshared \
+../bin/go get -u -v \
 	github.com/alecthomas/gometalinter \
 	github.com/derekparker/delve/cmd/dlv \
 	github.com/garyburd/go-explorer/src/getool \
@@ -86,6 +86,9 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 	github.com/kisielk/errcheck \
 	github.com/nsf/gocode \
 	github.com/rogpeppe/godef \
+	golang.org/x/tools/cmd/benchcmp \
+	golang.org/x/tools/cmd/cover \
+	golang.org/x/tools/cmd/godoc \
 	golang.org/x/tools/cmd/goimports \
 	golang.org/x/tools/cmd/gorename \
 	golang.org/x/tools/cmd/oracle \
