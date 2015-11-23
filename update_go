@@ -7,7 +7,7 @@ if [[ ! -d "$HOME/.nacl_sdk" ]]
 then
 	cd "$HOME"
 	rm -f .nacl_sdk.zip
-	wget -O .nacl_sdk.zip "http://storage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/nacl_sdk.zip"
+	wget -O .nacl_sdk.zip "https://storage.googleapis.com/nativeclient-mirror/nacl/nacl_sdk/nacl_sdk.zip"
 	unzip .nacl_sdk.zip
 	mv "nacl_sdk" ".nacl_sdk"
 	rm -f .nacl_sdk.zip
