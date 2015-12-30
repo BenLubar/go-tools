@@ -93,6 +93,8 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 	golang.org/x/tools/cmd/oracle \
 	golang.org/x/tools/cmd/ssadump
 
+"$GOBIN/gometalinter" --install --update
+
 export GOPATH="$old_GOPATH"
 export GOBIN="$old_GOBIN"
 
