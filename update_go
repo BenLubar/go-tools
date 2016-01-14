@@ -38,8 +38,15 @@ rm -rf "$HOME/.golang-bootstrap/"go-*
 
 for v in 1.4 1.5
 do
+	if [[ "$v" == "1.4" ]]
+	then
+		# https://golang.org/issue/13114
+		cgo=0
+	else
+		cgo=1
+	fi
 	git clone --depth 1 -b "release-branch.go$v" --reference "$HOME/.golang" "https://go.googlesource.com/go" "$HOME/.golang-bootstrap/go-$v"
-	(cd "$HOME/.golang-bootstrap/go-$v/src" && ./make.bash)
+	(cd "$HOME/.golang-bootstrap/go-$v/src" && CGO_ENABLED=$cgo ./make.bash)
 	export GOROOT_BOOTSTRAP="$HOME/.golang-bootstrap/go-$v"
 done
 
