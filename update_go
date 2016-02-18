@@ -36,7 +36,7 @@ git log --after=$(date --date="yesterday" +"%Y-%m-%dT04:00:00")
 
 rm -rf "$HOME/.golang-bootstrap/"go-*
 
-for v in 1.4 1.5
+for v in 1.4 1.5 1.6
 do
 	if [[ "$v" == "1.4" ]]
 	then
@@ -85,6 +85,7 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 
 ../bin/go get -u -v \
 	github.com/alecthomas/gometalinter \
+	github.com/cortesi/devd/cmd/devd \
 	github.com/derekparker/delve/cmd/dlv \
 	github.com/garyburd/go-explorer/src/getool \
 	github.com/golang/lint/golint \
@@ -99,6 +100,10 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 	golang.org/x/tools/cmd/gorename \
 	golang.org/x/tools/cmd/oracle \
 	golang.org/x/tools/cmd/ssadump
+
+# gopherjs doesn't work on development versions of Go.
+"$HOME/.golang-bootstrap/go-1.6/bin/go" get -u -v \
+	github.com/gopherjs/gopherjs
 
 "$GOBIN/gometalinter" --install --update
 
