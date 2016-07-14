@@ -1,6 +1,9 @@
-#!/bin/bash -e
+#!/bin/bash
 
 exec &> "$HOME/update_go.log"
+
+export GOBIN=""
+export GOPATH=""
 
 # Get the Native Client SDK
 if [[ ! -d "$HOME/.nacl_sdk" ]]
@@ -15,7 +18,7 @@ fi
 
 cd "$HOME/.nacl_sdk"
 
-./naclsdk update
+./naclsdk update --force
 
 nacl_version=$(./naclsdk list | grep -o 'pepper_\([0-9]\+\) (stable)' | cut -f1 -d' ')
 
@@ -75,9 +78,32 @@ cd src
 # build the standard library for Go
 ../bin/go install -a std
 
-# Install some utilities
+# Grab the correct PATH variable
 source "$HOME/.profile"
 
+GOBIN=/tmp/go-tools-garbage ../bin/go get -u -v \
+	github.com/gopherjs/gopherjs/js \
+	golang.org/x/arch/... \
+	golang.org/x/benchmarks/... \
+	golang.org/x/blog/... \
+	golang.org/x/build/... \
+	golang.org/x/crypto/... \
+	golang.org/x/debug/... \
+	golang.org/x/exp/... \
+	golang.org/x/image/... \
+	golang.org/x/mobile/... \
+	golang.org/x/net/... \
+	golang.org/x/oauth2/... \
+	golang.org/x/sys/... \
+	golang.org/x/talks/... \
+	golang.org/x/text/... \
+	golang.org/x/tools/... \
+	google.golang.org/api/... \
+	google.golang.org/appengine/... \
+	google.golang.org/cloud/... \
+	google.golang.org/grpc/...
+
+# Install some utilities
 old_GOPATH="$GOPATH"
 old_GOBIN="$GOBIN"
 export GOBIN="${old_GOBIN:-`cut -d: -f1 <<< "$old_GOPATH"`/bin}"
@@ -104,6 +130,10 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 # gopherjs doesn't work on development versions of Go.
 "$HOME/.golang-bootstrap/go-1.6/bin/go" get -u -v \
 	github.com/gopherjs/gopherjs
+(cd "$HOME/.golang-bootstrap/path/src/github.com/gopherjs/gopherjs/node-syscall" && \
+	node-gyp rebuild && \
+	mkdir -p "$HOME/.node_libraries" && \
+	cp build/Release/syscall.node "$HOME/.node_libraries/")
 
 "$GOBIN/gometalinter" --install --update
 
