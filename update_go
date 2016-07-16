@@ -119,6 +119,7 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 	github.com/kisielk/errcheck \
 	github.com/nsf/gocode \
 	github.com/rogpeppe/godef \
+	golang.org/x/review/git-codereview \
 	golang.org/x/tools/cmd/benchcmp \
 	golang.org/x/tools/cmd/cover \
 	golang.org/x/tools/cmd/godoc \
