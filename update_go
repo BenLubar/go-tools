@@ -39,7 +39,7 @@ git log --after=$(date --date="yesterday" +"%Y-%m-%dT04:00:00")
 
 rm -rf "$HOME/.golang-bootstrap/"go-*
 
-for v in 1.4 1.5 1.6
+for v in 1.4 1.5 1.6 1.7
 do
 	if [[ "$v" == "1.4" ]]
 	then
@@ -94,14 +94,22 @@ GOBIN=/tmp/go-tools-garbage ../bin/go get -u -v \
 	golang.org/x/mobile/... \
 	golang.org/x/net/... \
 	golang.org/x/oauth2/... \
+	golang.org/x/playground/... \
+	golang.org/x/sync/... \
 	golang.org/x/sys/... \
 	golang.org/x/talks/... \
 	golang.org/x/text/... \
+	golang.org/x/time/... \
 	golang.org/x/tools/... \
+	golang.org/x/tour/... \
 	google.golang.org/api/... \
 	google.golang.org/appengine/... \
 	google.golang.org/cloud/... \
 	google.golang.org/grpc/...
+
+if [[ -d "$HOME/.golang-path/src" ]]; then
+	find "$HOME/.golang-path/src" -name .git -type d -print -exec bash -ec 'cd "$0/.." && git pull && git submodule update --init --recursive' {} \;
+fi
 
 # Install some utilities
 old_GOPATH="$GOPATH"
@@ -129,7 +137,7 @@ export GOPATH="$HOME/.golang-bootstrap/path"
 	golang.org/x/tools/cmd/ssadump
 
 # gopherjs doesn't work on development versions of Go.
-"$HOME/.golang-bootstrap/go-1.6/bin/go" get -u -v \
+"$HOME/.golang-bootstrap/go-1.7/bin/go" get -u -v \
 	github.com/gopherjs/gopherjs
 (cd "$HOME/.golang-bootstrap/path/src/github.com/gopherjs/gopherjs/node-syscall" && \
 	node-gyp rebuild && \
